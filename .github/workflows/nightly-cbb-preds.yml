@@ -1,0 +1,23 @@
+name: nightly-cbb-preds
+
+on:
+  schedule:
+    - cron: '0 12 * * *'   # runs daily at 12:00 UTC (8am ET)
+  workflow_dispatch:        # lets you run it manually
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # If you later add Python deps, you can set up Python here.
+      - name: Run prediction script
+        run: |
+          python make_predictions.py
+
+      - name: Commit predictions.csv
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "update predictions.csv"
+          file_pattern: predictions.csv
