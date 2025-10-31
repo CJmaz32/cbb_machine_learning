@@ -2,29 +2,35 @@ name: nightly-cbb-preds
 
 on:
   schedule:
-    - cron: '0 12 * * *'   # daily 12:00 UTC (8am ET)
-  workflow_dispatch:        # allow manual runs
+    - cron: '0 12 * * *'
+  workflow_dispatch:
 
 permissions:
-  contents: write           # needed to commit predictions.csv
+  contents: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      # If you later need requirements.txt, add a pip install step here
+      # (Optional) show files so you can confirm the path
+      - name: List repo files
+        run: |
+          pwd
+          ls -la
+          echo "--- data dir ---"
+          ls -la data || true
 
       - name: Generate predictions.csv
-        run: |
-          python make_predictions.py
+        env:
+          INPUT_CSV: data/november_games.csv    # <-- set the correct path here
+          OUTPUT_CSV: predictions.csv
+        run: python make_predictions.py
 
       - name: Commit predictions.csv
         uses: stefanzweifel/git-auto-commit-action@v5
